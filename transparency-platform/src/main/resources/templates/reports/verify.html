@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Перевірка звіту', ~{::section})}">
+<section th:fragment="section">
+    <p><a th:href="@{/campaigns/{slug}(slug=${campaign.slug})}">← До кампанії</a></p>
+
+    <div class="card">
+        <h1>Перевірка цілісності звіту</h1>
+        <p style="color:var(--muted)">
+            Період:
+            <span th:text="${#temporals.format(report.periodFrom, 'dd.MM.yyyy') + ' — ' + #temporals.format(report.periodTo, 'dd.MM.yyyy')}">—</span>
+            · <span th:text="${campaign.title}">Campaign</span>
+        </p>
+
+        <p class="hash" th:if="${storedHash != null}">
+            <strong>Збережений SHA-256:</strong><br/>
+            <span th:text="${storedHash}">hash</span>
+        </p>
+
+        <form method="get" th:action="@{/reports/{id}/verify(id=${report.id})}" class="form-group" style="margin-top:1.5rem">
+            <label>Вставте хеш для порівняння</label>
+            <input name="hash" type="text" placeholder="64 символи hex" th:value="${submittedHash}" style="font-family:monospace"/>
+            <button type="submit" class="btn btn-primary" style="margin-top:0.75rem">Перевірити</button>
+        </form>
+
+        <div th:if="${matches != null}" class="alert" th:classappend="${matches} ? ' alert-success' : ' alert-error'" style="margin-top:1rem">
+            <span th:if="${matches}">Хеш збігається — звіт не змінювався з моменту публікації (за канонічними даними платформи).</span>
+            <span th:unless="${matches}">Хеш не збігається. Перевірте введення або зверніться до організатора.</span>
+        </div>
+        <p th:if="${computedHash != null}" class="hash" style="margin-top:0.5rem">
+            Обчислений зараз: <span th:text="${computedHash}">—</span>
+        </p>
+
+        <p style="color:var(--muted); font-size:0.85rem; margin-top:1.5rem">
+            Демо: підготовка до публічного anchor у реєстрі (Web3). Не є юридичним доказом.
+        </p>
+    </div>
+</section>
+</html>

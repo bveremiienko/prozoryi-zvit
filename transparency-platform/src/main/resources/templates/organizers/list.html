@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Організатори зборів', ~{::section})}">
+<section th:fragment="section">
+    <h1>Організатори <span style="color:var(--accent)">зборів</span></h1>
+    <p style="color:var(--muted)">Профілі ініціаторів з історією публічних зборів та звітності</p>
+
+    <div class="card" th:if="${#lists.isEmpty(organizers)}">
+        <p>Організаторів поки немає.</p>
+    </div>
+
+    <div class="organizer-grid" th:unless="${#lists.isEmpty(organizers)}">
+        <div class="card organizer-card" th:each="org : ${organizers}">
+            <div class="organizer-card-header">
+                <h3>
+                    <a th:href="@{/organizers/{slug}(slug=${org.slug})}" th:text="${org.name}">Name</a>
+                </h3>
+                <span th:if="${org.verified}" class="badge trust-ok">Перевірено</span>
+            </div>
+            <p th:if="${org.edrpou != null}" style="color:var(--muted); font-size:0.9rem; margin:0.5rem 0">
+                ЄДРПОУ: <span th:text="${org.edrpou}">0</span>
+            </p>
+            <div class="organizer-stats">
+                <span><strong th:text="${org.activeCampaigns}">0</strong> активних</span>
+                <span>·</span>
+                <span><strong th:text="${org.totalCampaigns}">0</strong> усього зборів</span>
+            </div>
+            <div class="checklist-score" style="margin-top:0.75rem">
+                <span class="score-num" style="font-size:1rem" th:text="${org.transparencyScorePercent} + '%'">0%</span>
+                <div class="progress-bar" style="flex:1">
+                    <div class="fill" th:style="'width:' + ${org.transparencyScorePercent} + '%'"></div>
+                </div>
+            </div>
+            <a th:href="@{/organizers/{slug}(slug=${org.slug})}" class="btn btn-outline" style="margin-top:1rem; display:inline-block">Профіль →</a>
+        </div>
+    </div>
+</section>
+</html>

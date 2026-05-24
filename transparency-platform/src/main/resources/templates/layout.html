@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="layout(pageTitle, content)" lang="uk">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — ПрозорийЗвіт'}">ПрозорийЗвіт</title>
+    <link rel="stylesheet" th:href="@{/css/demo.css}"/>
+</head>
+<body>
+<header class="site-header">
+    <div class="container inner">
+        <a th:href="@{/}" class="logo">Прозорий<span>Звіт</span></a>
+        <nav class="nav">
+            <a th:href="@{/campaigns}">Реєстр зборів</a>
+            <a th:href="@{/organizers}">Організатори</a>
+            <a th:href="@{/organizer}" sec:authorize="hasRole('ORGANIZER')">Кабінет</a>
+            <a th:href="@{/login}" sec:authorize="!isAuthenticated()">Увійти</a>
+            <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-outline" style="margin-left:1rem">Вийти</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <th:block th:replace="${content}"/>
+</main>
+
+<footer class="site-footer container">
+    Демо-платформа. Не приймає платежі. Не є юридичним аудитом.
+    <br/>Web3 Resilience Lab — пілот прозорості благодійних зборів.
+</footer>
+</body>
+</html>

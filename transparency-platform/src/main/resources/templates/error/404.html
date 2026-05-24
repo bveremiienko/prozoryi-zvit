@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Не знайдено', ~{::section})}">
+<section th:fragment="section">
+    <div class="card" style="text-align:center; padding:3rem">
+        <h1>404</h1>
+        <p th:text="${message} ?: 'Сторінку не знайдено'">Not found</p>
+        <a th:href="@{/}" class="btn btn-primary">На головну</a>
+    </div>
+</section>
+</html>

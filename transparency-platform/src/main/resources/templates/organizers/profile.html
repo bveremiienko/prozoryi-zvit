@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(${profile.organizer.name}, ~{::section})}">
+<section th:fragment="section" th:with="org=${profile.organizer}">
+    <p><a th:href="@{/organizers}">← Усі організатори</a></p>
+
+    <div class="card">
+        <div class="organizer-card-header">
+            <h1 th:text="${org.name}">Org</h1>
+            <span th:if="${org.verified}" class="badge trust-ok">Перевірено партнером програми</span>
+        </div>
+        <p th:if="${org.description != null}" th:text="${org.description}" style="margin-top:1rem">Desc</p>
+
+        <div class="grid-2" style="margin-top:1.5rem">
+            <div>
+                <h3>Контакти</h3>
+                <p th:if="${org.edrpou != null}"><strong>ЄДРПОУ:</strong> <span th:text="${org.edrpou}">—</span></p>
+                <p th:if="${org.email != null}">
+                    <strong>Email:</strong>
+                    <a th:href="'mailto:' + ${org.email}" th:text="${org.email}">email</a>
+                </p>
+                <p th:if="${org.phone != null}"><strong>Телефон:</strong> <span th:text="${org.phone}">—</span></p>
+                <p th:if="${org.website != null}">
+                    <strong>Сайт:</strong>
+                    <a th:href="${org.website}" target="_blank" rel="noopener" th:text="${org.website}">site</a>
+                </p>
+                <p th:if="${org.email == null and org.phone == null and org.website == null}" style="color:var(--muted)">
+                    Контакти не вказано.
+                </p>
+            </div>
+            <div>
+                <h3>Статистика</h3>
+                <p>Активних зборів: <strong th:text="${profile.activeCampaigns}">0</strong></p>
+                <p>Завершених: <strong th:text="${profile.completedCampaigns}">0</strong></p>
+                <p>Усього кампаній: <strong th:text="${profile.totalCampaigns}">0</strong></p>
+                <p style="margin-top:0.75rem">Індекс прозорості:
+                    <strong th:text="${profile.transparencyScorePercent} + '%'">0%</strong>
+                </p>
+                <div class="progress-bar">
+                    <div class="fill" th:style="'width:' + ${profile.transparencyScorePercent} + '%'"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card share-card">
+        <h3>Поділитися профілем</h3>
+        <code class="share-url" th:text="${profile.publicProfileUrl}">url</code>
+        <button type="button" class="btn btn-primary btn-sm" style="margin-top:0.75rem"
+                th:attr="data-url=${profile.publicProfileUrl}"
+                onclick="copyCampaignLink(this)">Копіювати посилання</button>
+    </div>
+
+    <div class="card">
+        <h3>Історія зборів</h3>
+        <table th:if="${!#lists.isEmpty(profile.campaigns)}">
+            <thead>
+            <tr>
+                <th>Збір</th>
+                <th>Статус</th>
+                <th>Довіра</th>
+                <th>Звітів</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${profile.campaigns}">
+                <td><a th:href="@{/campaigns/{slug}(slug=${c.slug})}" th:text="${c.title}">Title</a></td>
+                <td th:text="${c.status}">ACTIVE</td>
+                <td>
+                    <span class="badge" th:classappend="${c.trustStatus.cssClass}"
+                          th:text="${c.trustStatus.labelUk}">—</span>
+                </td>
+                <td th:text="${c.reportCount}">0</td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${#lists.isEmpty(profile.campaigns)}" style="color:var(--muted)">Публічних зборів ще немає.</p>
+    </div>
+
+    <p style="color:var(--muted); font-size:0.85rem">
+        Профіль ініціатора. Платформа не засвідчує юридичну особу, окрім позначки «перевірено».
+    </p>
+
+    <script th:src="@{/js/demo.js}"></script>
+</section>
+</html>

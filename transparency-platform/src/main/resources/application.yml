@@ -1,0 +1,75 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  profiles:
+    default: local
+  application:
+    name: prozoryi-zvit
+  thymeleaf:
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+app:
+  upload-dir: ${APP_UPLOAD_DIR:./data/uploads}
+  report-overdue-days: 14
+  public-base-url: ${APP_PUBLIC_BASE_URL:http://localhost:8080}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/transparency
+    username: transparency
+    password: transparency
+
+demo:
+  organizer:
+    email: organizer@demo.local
+    password: ${DEMO_ORGANIZER_PASSWORD:demo123}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: demo
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/transparency}
+    username: ${SPRING_DATASOURCE_USERNAME:transparency}
+    password: ${SPRING_DATASOURCE_PASSWORD:transparency}
+
+demo:
+  organizer:
+    email: organizer@demo.local
+    password: ${DEMO_ORGANIZER_PASSWORD:demo123}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+
+demo:
+  organizer:
+    email: organizer@demo.local
+    password: demo123

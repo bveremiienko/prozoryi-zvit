@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Головна', ~{::section})}">
+<section th:fragment="section">
+    <div class="hero">
+        <h1>Реєстр <span class="accent">прозорих</span> зборів</h1>
+        <p>План витрат, етапні звіти та журнал змін — щоб донори бачили, куди йдуть кошти. Без прийому платежів на платформі.</p>
+        <a th:href="@{/campaigns}" class="btn btn-primary">Переглянути збори</a>
+        <a th:href="@{/organizers}" class="btn btn-outline" style="margin-left:0.5rem">Організатори</a>
+        <a th:href="@{/login}" class="btn btn-outline" style="margin-left:0.5rem">Кабінет організатора</a>
+    </div>
+
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="num" th:text="${registryCount}">0</div>
+            <div class="label">Кампаній у реєстрі</div>
+        </div>
+        <div class="kpi">
+            <div class="num" th:text="${activeCampaigns}">0</div>
+            <div class="label">Активних зборів</div>
+        </div>
+        <div class="kpi">
+            <div class="num" th:text="${totalReports}">0</div>
+            <div class="label">Опублікованих звітів</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Як це працює</h2>
+        <ol>
+            <li>Організатор публікує <strong>план витрат</strong> перед або на старті збору.</li>
+            <li>Після етапів роботи — <strong>звіт</strong> з сумами та вкладеннями (чеки, акти).</li>
+            <li>Усі зміни фіксуються в <strong>журналі аудиту</strong>; хеш звіту готовий до публічного anchor.</li>
+        </ol>
+    </div>
+</section>
+</html>

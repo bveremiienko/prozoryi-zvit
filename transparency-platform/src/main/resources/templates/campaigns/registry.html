@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Реєстр зборів', ~{::section})}">
+<section th:fragment="section">
+    <h1>Реєстр <span style="color:var(--accent)">зборів</span></h1>
+    <p style="color:var(--muted)">Публічні кампанії з планом витрат та звітністю</p>
+
+    <div class="card" th:if="${#lists.isEmpty(campaigns)}">
+        <p>Кампаній поки немає.</p>
+    </div>
+
+    <table th:unless="${#lists.isEmpty(campaigns)}">
+        <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Організатор</th>
+            <th>Статус довіри</th>
+            <th>Зібрано / ціль</th>
+            <th>Звітів</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${campaigns}">
+            <td><a th:href="@{/campaigns/{slug}(slug=${c.slug})}" th:text="${c.title}">Title</a></td>
+            <td>
+                <a th:if="${c.organizerSlug != null}" th:href="@{/organizers/{slug}(slug=${c.organizerSlug})}" th:text="${c.organizerName}">Org</a>
+                <span th:if="${c.organizerSlug == null}" th:text="${c.organizerName}">Org</span>
+            </td>
+            <td>
+                <span class="badge" th:classappend="${c.trustStatus.cssClass}"
+                      th:text="${c.trustStatus.labelUk}">Status</span>
+            </td>
+            <td>
+                <span th:text="${#numbers.formatDecimal(c.collected, 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</span>
+                <span th:if="${c.targetAmount != null}">
+                    / <span th:text="${#numbers.formatDecimal(c.targetAmount, 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</span>
+                </span>
+            </td>
+            <td th:text="${c.reportCount}">0</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>

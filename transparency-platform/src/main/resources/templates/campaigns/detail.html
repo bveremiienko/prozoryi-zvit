@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(${detail.campaign.title}, ~{::section})}">
+<section th:fragment="section" th:with="c=${detail.campaign}, s=${detail.summary}, cl=${detail.checklist}">
+    <p><a th:href="@{/campaigns}">← Реєстр</a></p>
+
+    <div class="card">
+        <h1 th:text="${c.title}">Title</h1>
+        <p th:text="${c.description}">Desc</p>
+        <p><strong>Організатор:</strong>
+            <a th:if="${c.organizerSlug != null}" th:href="@{/organizers/{slug}(slug=${c.organizerSlug})}" th:text="${c.organizerName}">Org</a>
+            <span th:if="${c.organizerSlug == null}" th:text="${c.organizerName}">Org</span>
+            <span th:if="${c.edrpou != null}"> · ЄДРПОУ <span th:text="${c.edrpou}">0</span></span></p>
+        <p>
+            <span class="badge" th:classappend="${detail.trustStatus.cssClass}"
+                  th:text="${detail.trustStatus.labelUk}">Trust</span>
+            <span th:text="' · ' + ${c.status}">ACTIVE</span>
+        </p>
+        <p th:if="${c.externalDonationUrl != null}">
+            <a th:href="${c.externalDonationUrl}" target="_blank" rel="noopener">Посилання на збір (зовнішнє)</a>
+        </p>
+    </div>
+
+    <div class="card share-card">
+        <h3>Поділитися</h3>
+        <div class="share-row">
+            <div>
+                <p style="color:var(--muted); font-size:0.9rem; margin:0 0 0.5rem">Публічне посилання для донорів</p>
+                <code class="share-url" th:text="${detail.publicUrl}">url</code>
+                <div style="margin-top:0.75rem">
+                    <button type="button" class="btn btn-primary btn-sm"
+                            th:attr="data-url=${detail.publicUrl}"
+                            onclick="copyCampaignLink(this)">Копіювати посилання</button>
+                </div>
+            </div>
+            <div class="qr-wrap">
+                <img th:src="@{/campaigns/{slug}/qr.png(slug=${c.slug})}" alt="QR-код кампанії" width="140" height="140"/>
+                <p style="color:var(--muted); font-size:0.75rem; text-align:center; margin:0.35rem 0 0">Скануйте для відкриття</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Чеклист прозорості</h3>
+        <div class="checklist-score">
+            <span class="score-num" th:text="${cl.score} + '/' + ${cl.maxScore}">0/5</span>
+            <div class="progress-bar" style="flex:1">
+                <div class="fill" th:style="'width:' + ${cl.scorePercent()} + '%'"></div>
+            </div>
+        </div>
+        <ul class="checklist">
+            <li th:classappend="${cl.hasPlan} ? 'ok' : 'no'">
+                <span th:text="${cl.hasPlan} ? '✓' : '○'">○</span> Опубліковано план витрат
+            </li>
+            <li th:classappend="${cl.hasReport} ? 'ok' : 'no'">
+                <span th:text="${cl.hasReport} ? '✓' : '○'">○</span> Є хоча б один звіт
+            </li>
+            <li th:classappend="${cl.onSchedule} ? 'ok' : 'no'">
+                <span th:text="${cl.onSchedule} ? '✓' : '○'">○</span> Звітність без прострочення
+            </li>
+            <li th:classappend="${cl.hasAttachments} ? 'ok' : 'no'">
+                <span th:text="${cl.hasAttachments} ? '✓' : '○'">○</span> Є підтверджуючі документи
+            </li>
+            <li th:classappend="${c.externalDonationUrl != null} ? 'ok' : 'no'">
+                <span th:text="${c.externalDonationUrl != null} ? '✓' : '○'">○</span> Вказано зовнішнє посилання на збір
+            </li>
+        </ul>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h3>Фінанси (декларовано)</h3>
+            <p>Зібрано: <strong th:text="${#numbers.formatDecimal(s.collected, 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</strong></p>
+            <p th:if="${s.targetAmount != null}">
+                Ціль: <span th:text="${#numbers.formatDecimal(s.targetAmount, 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</span>
+            </p>
+            <div class="progress-bar" th:if="${s.targetAmount != null and s.targetAmount.signum() > 0}">
+                <div class="fill" th:style="'width:' + ${s.progressPercent()} + '%'"></div>
+            </div>
+            <p>Витрачено за звітами: <strong th:text="${#numbers.formatDecimal(s.spent, 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</strong></p>
+            <p>План витрат: <strong th:text="${#numbers.formatDecimal(s.plannedTotal, 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</strong></p>
+            <p th:if="${c.nextReportDue != null}" style="color:var(--muted); font-size:0.9rem">
+                Наступний звіт до: <span th:text="${#temporals.format(c.nextReportDue, 'dd.MM.yyyy')}">—</span>
+            </p>
+        </div>
+        <div class="card">
+            <h3>План витрат</h3>
+            <table th:if="${!#lists.isEmpty(detail.planLines)}">
+                <tr th:each="line : ${detail.planLines}">
+                    <td th:text="${line.category.labelUk}">Cat</td>
+                    <td th:text="${#numbers.formatDecimal(line.plannedAmount, 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</td>
+                </tr>
+            </table>
+            <p th:if="${#lists.isEmpty(detail.planLines)}" style="color:var(--muted)">План ще не опубліковано.</p>
+        </div>
+    </div>
+
+    <div class="card" th:if="${!#lists.isEmpty(detail.planVsFact)}">
+        <h3>План vs факт <span style="color:var(--muted); font-weight:normal; font-size:0.9rem">по категоріях</span></h3>
+        <table class="budget-table">
+            <thead>
+            <tr>
+                <th>Категорія</th>
+                <th>План</th>
+                <th>Факт</th>
+                <th>Залишок</th>
+                <th>%</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${detail.planVsFact}" th:classappend="${row.statusClass()}">
+                <td th:text="${row.categoryLabel()}">Cat</td>
+                <td th:text="${#numbers.formatDecimal(row.planned(), 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</td>
+                <td th:text="${#numbers.formatDecimal(row.spent(), 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</td>
+                <td th:text="${#numbers.formatDecimal(row.remaining(), 0, 'COMMA', 0, 'POINT')} + ' ₴'">0</td>
+                <td>
+                    <span th:text="${row.usagePercent()} + '%'">0%</span>
+                    <div class="progress-bar mini">
+                        <div class="fill" th:style="'width:' + ${row.barWidthPercent()} + '%'"></div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Звіти</h3>
+        <div th:each="report : ${detail.reports}" class="report-block">
+            <p><strong th:text="${#temporals.format(report.periodFrom, 'dd.MM.yyyy') + ' — ' + #temporals.format(report.periodTo, 'dd.MM.yyyy')}">Period</strong></p>
+            <p th:text="${report.summary}">Summary</p>
+            <ul>
+                <li th:each="line : ${report.lines}"
+                    th:text="${line.category.labelUk + ': ' + #numbers.formatDecimal(line.amount, 0, 'COMMA', 0, 'POINT') + ' ₴'}">Line</li>
+            </ul>
+            <p th:each="att : ${report.attachments}">
+                <a th:href="@{/attachments/{rid}/{aid}(rid=${report.id}, aid=${att.id})}" th:text="${att.originalFilename}">file</a>
+            </p>
+            <p class="hash" th:if="${report.reportHash != null}">
+                SHA-256: <span th:text="${report.reportHash}">hash</span>
+                · <a th:href="@{/reports/{id}/verify(id=${report.id})}">Перевірити хеш</a>
+            </p>
+        </div>
+        <p th:if="${#lists.isEmpty(detail.reports)}" style="color:var(--muted)">Звітів ще немає.</p>
+    </div>
+
+    <div class="card">
+        <h3>Журнал змін</h3>
+        <ul class="audit-list">
+            <li th:each="e : ${detail.auditEvents}">
+                <span class="time" th:text="${#temporals.format(e.createdAt, 'dd.MM.yyyy HH:mm')}">time</span>
+                · <span th:text="${e.action}">ACTION</span>
+                <span th:if="${e.fieldName != null}" th:text="' · ' + ${e.fieldName}">field</span>
+                <span th:if="${e.newValue != null}" th:text="': ' + ${e.newValue}">val</span>
+                — <span th:text="${e.actor}">actor</span>
+            </li>
+        </ul>
+        <p th:if="${#lists.isEmpty(detail.auditEvents)}" style="color:var(--muted)">Подій немає.</p>
+    </div>
+
+    <script th:src="@{/js/demo.js}"></script>
+</section>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Кабінет', ~{::section})}">
+<section th:fragment="section">
+    <h1>Кабінет організатора</h1>
+    <p th:if="${organization != null}">
+        <strong th:text="${organization.name}">Org</strong>
+        · <a th:href="@{/organizers/{slug}(slug=${organization.slug})}">Публічний профіль</a>
+    </p>
+    <p><a th:href="@{/organizer/campaigns/new}" class="btn btn-primary">+ Нова кампанія</a></p>
+
+    <table th:unless="${#lists.isEmpty(campaigns)}" style="margin-top:1.5rem">
+        <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Статус</th>
+            <th>Дії</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="camp : ${campaigns}">
+            <td>
+                <a th:href="@{/campaigns/{slug}(slug=${camp.slug})}" th:text="${camp.title}">T</a>
+            </td>
+            <td th:text="${camp.status}">ACTIVE</td>
+            <td>
+                <a th:href="@{/organizer/campaigns/{id}/edit(id=${camp.id})}">Редагувати</a> ·
+                <a th:href="@{/organizer/campaigns/{id}/plan(id=${camp.id})}">План</a> ·
+                <a th:href="@{/organizer/campaigns/{id}/reports/new(id=${camp.id})}">Звіт</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>
